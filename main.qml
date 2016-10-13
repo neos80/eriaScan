@@ -1,25 +1,28 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.0
 import QtQuick.LocalStorage 2.0
-import Qt.labs.calendar 1.0
 import Qt.labs.settings 1.0
-import QtQuick.Controls.Material 2.0
+import QtQuick.Dialogs 1.2
 import "Database.js" as Db
-import QtQuick.Controls.Universal 2.0
+import Qt.labs.calendar 1.0
 
 ApplicationWindow {
     id: applicationWindow1
     visible: true
     width: 640
-    height: 480
+    height: 200
     minimumWidth: 640
     minimumHeight: 200
     maximumWidth: 640
-    maximumHeight: 480
+    maximumHeight: 200
     title: qsTr("Счетчик флаеров")
 
+    function countBetween(startdate,enddate) {
+        var countBetween
+        var records = Db.getRecordsBetween(startdate,enddate)  //тут заменил на фильтр
+        return countBetween = records.length
+    }
     function countToday() {
         var countToday
         var records = Db.getRecordsToday()  //тут заменил на фильтр
@@ -35,7 +38,7 @@ ApplicationWindow {
                                         "recordaRdate": records[i].aRdate
                                     })
         }
-        tekDay.text = countToday()
+        tekDay.text    = countToday()
     }
 
 
@@ -70,78 +73,6 @@ ApplicationWindow {
         onTriggered: iconImg.state = "normal"
     }
 
-    ListView {
-        id: listView1
-        y: 264
-        height: 246
-        enabled: true
-        contentWidth: 2
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 0
-        model: recordsListModel
-
-        delegate: RowLayout {
-            Label {
-                Layout.fillWidth: true
-                text: model.recordId + ". " + model.recordaRdate
-                font.pixelSize: 12
-                font.bold: true
-            }
-            Button {
-                text: "x"
-//                font.pixelSize: 18
-//                font.bold: true
-                onClicked: {
-                    Db.removeRecord(model.recordId)
-                    updateRecords()
-                }
-            }
-
-        }
-    }
-
-    TextInput {
-        id: textInput1
-        x: 226
-        y: 143
-        width: 224
-        height: 40                
-        cursorVisible: true
-        anchors.horizontalCenterOffset: 0
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 176
-        Layout.fillWidth: true
-        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
-        echoMode: TextInput.Password
-        passwordCharacter: qsTr("●")
-        inputMask: qsTr("")
-        font.bold: true
-        font.pixelSize: 21
-        focus: true
-        Keys.onReturnPressed: {
-
-            if (textInput1.text == template.text){
-                iconImg.state = "accept"
-                Db.insertRecord(Qt.formatDateTime(new Date(), "yyyy-MM-dd hh:mm:ss"))
-                updateRecords()
-                timer.start()
-            } else {
-                iconImg.state = "stop"
-                timer.start()
-            }
-
-            textInput1.text = (qsTr(""))
-            console.log("Key Enter was pressed and NewDay: " + Qt.formatDateTime(new Date(), "dd-MM-yyyy hh:mm:ss") )
-
-        }
-
-    }
 
     Text {
         id: template
@@ -149,7 +80,7 @@ ApplicationWindow {
         y: 70
         width: 83
         height: 28
-        text: qsTr("4690512020922")
+        text: qsTr("98736820124345332442")
         Layout.fillWidth: true
         Layout.fillHeight: false
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -233,6 +164,7 @@ ApplicationWindow {
         width: 84
         height: 40
         text: qsTr("addValue")
+        enabled: false
         onClicked: {
             tekPeriod.text = qsTr(Db.getPredMonth() )
             Db.insertRecord(Qt.formatDateTime(new Date(), "2016-10-10 10:33:10"))
@@ -290,7 +222,8 @@ ApplicationWindow {
         width: 80
         height: 20
         text: qsTr("10.09.2016")
-                validator: RegExpValidator{regExp: /^(((0[1-9]|[12]\d|3[01])\.(0[13578]|1[02])\.((19|[2-9]\d)\d{2}))|((0[1-9]|[12]\d|30)\.(0[13456789]|1[012])\.((19|[2-9]\d)\d{2}))|((0[1-9]|1\d|2[0-8])\.02\.((19|[2-9]\d)\d{2}))|(29\.02\.((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))))$/}
+        inputMask: "00.00.0000"
+        validator: RegExpValidator{regExp: /^(((0[1-9]|[12]\d|3[01])\.(0[13578]|1[02])\.((19|[2-9]\d)\d{2}))|((0[1-9]|[12]\d|30)\.(0[13456789]|1[012])\.((19|[2-9]\d)\d{2}))|((0[1-9]|1\d|2[0-8])\.02\.((19|[2-9]\d)\d{2}))|(29\.02\.((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))))$/}
         font.bold: true
         font.pixelSize: 12
     }
@@ -302,15 +235,19 @@ ApplicationWindow {
         width: 80
         height: 20
         text: qsTr("10.10.2016")
+        inputMask: "00.00.0000"
         validator: RegExpValidator{regExp: /^(((0[1-9]|[12]\d|3[01])\.(0[13578]|1[02])\.((19|[2-9]\d)\d{2}))|((0[1-9]|[12]\d|30)\.(0[13456789]|1[012])\.((19|[2-9]\d)\d{2}))|((0[1-9]|1\d|2[0-8])\.02\.((19|[2-9]\d)\d{2}))|(29\.02\.((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))))$/}
         font.bold: true
         font.pixelSize: 12
     }
 
     Component.onCompleted: {
-//        startdate.text = Qt.formatDateTime(new Date(), "dd.MM.yyyy")
-//        endtdate.text = Qt.formatDateTime(new Date(), "dd.MM.yyyy")
+        startdate.text = Db.getPredMonth()
+        enddate.text   = Qt.formatDateTime(new Date(), "dd.MM.yyyy")
     }
+
+
+
 
     Button {
         id: butupdate
@@ -322,10 +259,75 @@ ApplicationWindow {
         onClicked: {
             tekDay.text = countToday()
             updateRecords()
-            dialogCalendar.show()
+            var stDate = startdate.text
+            var enDate = enddate.text
+            tekPeriod.text = countBetween(stDate,enDate)
+
+            //helloDialog.open()
         }
     }
 
+    Dialog {
+        id: helloDialog
+        //        modality: dialogModal.checked ? Qt.WindowModal : Qt.NonModal
+        //        title: customizeTitle.checked ? windowTitleField.text : "Hello"
+        onButtonClicked: console.log("clicked button " + clickedButton)
+        onAccepted: tekPeriod.text = "Accepted " +
+                    (clickedButton == StandardButton.Ok ? "(OK)" : (clickedButton == StandardButton.Retry ? "(Retry)" : "(Ignore)"))
+        onRejected: tekPeriod.text = "Rejected " +
+                    (clickedButton == StandardButton.Close ? "(Close)" : (clickedButton == StandardButton.Abort ? "(Abort)" : "(Cancel)"))
+        onHelp: tekPeriod.text = "Yelped for help!"
+        onYes: tekPeriod.text = (clickedButton == StandardButton.Yes ? "Yeessss!!" : "Yes, now and always")
+        onNo: tekPeriod.text = (clickedButton == StandardButton.No ? "Oh No." : "No, no, a thousand times no!")
+        onApply: tekPeriod.text = "Apply"
+        onReset: tekPeriod.text = "Reset"
 
+        Label {
+            text: "Hello world!"
+        }
+    }
+
+    Rectangle {
+        id: rectangle1
+        x: 214
+        y: 129
+        width: 200
+        height: 47
+        color: "#ffffff"
+        border.color: "#d20000"
+
+        TextInput {
+            id: textInput1
+            anchors.fill: parent
+            cursorVisible: true
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            echoMode: TextInput.Password
+            passwordCharacter: qsTr("●")
+            inputMask: qsTr("")
+            font.bold: true
+            font.pixelSize: 21
+            focus: true
+            Keys.onReturnPressed: {
+
+                if (textInput1.text == template.text){
+                    iconImg.state = "accept"
+                    Db.insertRecord(Qt.formatDateTime(new Date(), "yyyy-MM-dd hh:mm:ss"))
+                    updateRecords()
+                    timer.start()
+                } else {
+                    iconImg.state = "stop"
+                    timer.start()
+                }
+
+                textInput1.text = (qsTr(""))
+                console.log("Key Enter was pressed and NewDay: " + Qt.formatDateTime(new Date(), "dd-MM-yyyy hh:mm:ss") )
+
+            }
+
+        }
+    }
 
 }

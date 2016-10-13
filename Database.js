@@ -11,26 +11,62 @@ function init() {
     )
 }
 
-function getRecordsBetween(startDate,endDate) {
+
+function getRecordsBetween(startdate,enddate) {
     var records = []
-    db.transaction(
-                function(tx) {
-                    var sDate = new Date(startDate);
-                    var nDate = new Date(endDate);
-                    var rs = tx.executeSql('SELECT * FROM SampleTable;');
-                    for (var i = 0; i < rs.rows.length; i++) {
-                        rdate = new Date(rs.rows.item(i).aRdate);
-                        if ((today.getDay()==rdate.getDay())&&(today.getMonth()==rdate.getMonth())&&(today.getFullYear()==rdate.getFullYear()) )
-                        {
-                            var record = {
-                                id:     rs.rows.item(i).id,
-                                aRdate: rs.rows.item(i).aRdate
+    var sdate = startdate.split('.');
+    var edate = enddate.split('.');
+    var snDate = new Date(sdate[2]+"-"+sdate[1]+"-"+sdate[0]);
+    var enDate = new Date(edate[2]+"-"+edate[1]+"-"+edate[0]);
+    enDate.setDate(enDate.getDate()+1) //грязный хак
+
+    if (snDate != enDate) {
+        if (snDate > enDate) {
+            console.log("Error StartDate > EndDate "+snDate+"  "+enDate );
+
+        } else {
+            console.log("Goood:   ");           
+            db.transaction(
+                        function(tx) {
+                            var rdate;
+                            var rs = tx.executeSql('SELECT * FROM SampleTable;');
+                            for (var i = 0; i < rs.rows.length; i++) {
+                                rdate = new Date(rs.rows.item(i).aRdate);
+                                if ( (rdate>=snDate)&&(rdate<=enDate) )
+                                {
+                                    var record = {
+                                        id:     rs.rows.item(i).id,
+                                        aRdate: rs.rows.item(i).aRdate
+                                    }
+                                    records.push(record)
+                                }
                             }
-                            records.push(record)
+                        }
+                        );
+
+            //console.log("Goood:   ");
+        }
+    } else {
+        console.log("Error StartDate = EndDate "+snDate+"  "+enDate);
+        db.transaction(
+                    function(tx) {
+                        var today = new Date();
+                        var rzdate;
+                        var rs = tx.executeSql('SELECT * FROM SampleTable;');
+                        for (var i = 0; i < rs.rows.length; i++) {
+                            rzdate = new Date(rs.rows.item(i).aRdate);
+                            if ((today.getDay()==rzdate.getDay())&&(today.getMonth()==rzdate.getMonth())&&(today.getFullYear()==rzdate.getFullYear()) )
+                            {
+                                var record = {
+                                    id:     rs.rows.item(i).id,
+                                    aRdate: rs.rows.item(i).aRdate
+                                }
+                                records.push(record)
+                            }
                         }
                     }
-                }
-                );
+                    );
+    }
     return records
 }
 
@@ -92,7 +128,7 @@ function removeRecord(id) {
     );
 }
 
-function getPredMonth() {
+function getPredMonth() {    
     var Month = new Date();
     Month.setMonth(Month.getMonth()-1)
     return Qt.formatDate(Month, "dd-MM-yyyy");

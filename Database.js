@@ -14,11 +14,17 @@ function init() {
 
 function getRecordsBetween(startdate,enddate) {
     var records = []
-    var sdate = startdate.split('.');
-    var edate = enddate.split('.');
-    var snDate = new Date(sdate[2]+"-"+sdate[1]+"-"+sdate[0]);
-    var enDate = new Date(edate[2]+"-"+edate[1]+"-"+edate[0]);
-    enDate.setDate(enDate.getDate()+1) //грязный хак
+    var snDate = startdate;
+    var enDate = enddate;
+    snDate.setHours(0);
+    snDate.setMinutes(0);
+    snDate.setSeconds(0);
+    snDate.setMilliseconds(0);
+
+    enDate.setHours(23);
+    enDate.setMinutes(59);
+    enDate.setSeconds(59);
+    enDate.setMilliseconds(999);
 
     if (snDate != enDate) {
         if (snDate > enDate) {
@@ -55,14 +61,18 @@ function getRecordsBetween(startdate,enddate) {
                         var rs = tx.executeSql('SELECT * FROM SampleTable;');
                         for (var i = 0; i < rs.rows.length; i++) {
                             rzdate = new Date(rs.rows.item(i).aRdate);
-                            if ((today.getDay()==rzdate.getDay())&&(today.getMonth()==rzdate.getMonth())&&(today.getFullYear()==rzdate.getFullYear()) )
-                            {
-                                var record = {
-                                    id:     rs.rows.item(i).id,
-                                    aRdate: rs.rows.item(i).aRdate
+                            if (today.getFullYear()==rzdate.getFullYear() ){
+                                if (today.getMonth()==rzdate.getMonth() ){
+                                    if (today.getDate()==rzdate.getDate() ){
+                                        var record = {
+                                            id:     rs.rows.item(i).id,
+                                            aRdate: rs.rows.item(i).aRdate
+                                        }
+                                        records.push(record)
+                                    }
                                 }
-                                records.push(record)
                             }
+
                         }
                     }
                     );
@@ -76,16 +86,20 @@ function getRecordsToday() {
                 function(tx) {
                     var today = new Date();
                     var rdate;
+
                     var rs = tx.executeSql('SELECT * FROM SampleTable;');
                     for (var i = 0; i < rs.rows.length; i++) {
                         rdate = new Date(rs.rows.item(i).aRdate);
-                        if ((today.getDay()==rdate.getDay())&&(today.getMonth()==rdate.getMonth())&&(today.getFullYear()==rdate.getFullYear()) )
-                        {
-                            var record = {
-                                id:     rs.rows.item(i).id,
-                                aRdate: rs.rows.item(i).aRdate
+                        if (today.getFullYear()==rdate.getFullYear() ){
+                            if (today.getMonth()==rdate.getMonth() ){
+                                if (today.getDate()==rdate.getDate() ){
+                                    var record = {
+                                        id:     rs.rows.item(i).id,
+                                        aRdate: rs.rows.item(i).aRdate
+                                    }
+                                    records.push(record)
+                                }
                             }
-                            records.push(record)
                         }
                     }
                 }
@@ -128,8 +142,8 @@ function removeRecord(id) {
     );
 }
 
-function getPredMonth() {    
-    var Month = new Date();
-    Month.setMonth(Month.getMonth()-1)
-    return Qt.formatDate(Month, "dd-MM-yyyy");
-}
+//function getPredMonth() {
+//    var Month = new Date();
+//    Month.setMonth(Month.getMonth()-1)
+//    return Qt.formatDate(Month, "dd-MM-yyyy");
+//}

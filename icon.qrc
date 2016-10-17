@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>icon/accept.svg</file>
         <file>icon/stop.svg</file>
+        <file>icon/arrow_Down.svg</file>
+        <file>icon/arrow_Up.svg</file>
     </qresource>
 </RCC>

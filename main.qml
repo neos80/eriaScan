@@ -1,11 +1,8 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import QtQuick.LocalStorage 2.0
-import Qt.labs.settings 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick.Controls.Material 2.0
+import QtQuick.Layouts 1.1
 import "Database.js" as Db
-import Qt.labs.calendar 1.0
 
 ApplicationWindow {
     id: applicationWindow1
@@ -18,11 +15,21 @@ ApplicationWindow {
     maximumHeight: 200
     title: qsTr("Счетчик флаеров")
 
+    Component.onCompleted: {
+        datePickerSt.date = new Date();
+        datePickerSt.date.setMonth(datePickerSt.date.getMonth()-1);
+        datePickerSt.getDate();
+        datePickerEnd.date = new Date();
+        datePickerEnd.getDate();
+    }
+
+
     function countBetween(startdate,enddate) {
         var countBetween
         var records = Db.getRecordsBetween(startdate,enddate)  //тут заменил на фильтр
         return countBetween = records.length
     }
+
     function countToday() {
         var countToday
         var records = Db.getRecordsToday()  //тут заменил на фильтр
@@ -48,12 +55,6 @@ ApplicationWindow {
             Db.init()
             updateRecords()
         }
-    }
-
-
-    Settings {
-        id: settings
-        //            property string state: "active"
     }
 
 
@@ -195,7 +196,7 @@ ApplicationWindow {
     Label {
         id: label1
         x: 14
-        y: 75
+        y: 70
         width: 29
         height: 18
         text: qsTr("По")
@@ -215,40 +216,6 @@ ApplicationWindow {
     }
 
 
-    TextInput {
-        id: startdate
-        x: 62
-        y: 44
-        width: 80
-        height: 20
-        text: qsTr("10.09.2016")
-        inputMask: "00.00.0000"
-        validator: RegExpValidator{regExp: /^(((0[1-9]|[12]\d|3[01])\.(0[13578]|1[02])\.((19|[2-9]\d)\d{2}))|((0[1-9]|[12]\d|30)\.(0[13456789]|1[012])\.((19|[2-9]\d)\d{2}))|((0[1-9]|1\d|2[0-8])\.02\.((19|[2-9]\d)\d{2}))|(29\.02\.((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))))$/}
-        font.bold: true
-        font.pixelSize: 12
-    }
-
-    TextInput {
-        id: enddate
-        x: 62
-        y: 73
-        width: 80
-        height: 20
-        text: qsTr("10.10.2016")
-        inputMask: "00.00.0000"
-        validator: RegExpValidator{regExp: /^(((0[1-9]|[12]\d|3[01])\.(0[13578]|1[02])\.((19|[2-9]\d)\d{2}))|((0[1-9]|[12]\d|30)\.(0[13456789]|1[012])\.((19|[2-9]\d)\d{2}))|((0[1-9]|1\d|2[0-8])\.02\.((19|[2-9]\d)\d{2}))|(29\.02\.((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))))$/}
-        font.bold: true
-        font.pixelSize: 12
-    }
-
-    Component.onCompleted: {
-        startdate.text = Db.getPredMonth()
-        enddate.text   = Qt.formatDateTime(new Date(), "dd.MM.yyyy")
-    }
-
-
-
-
     Button {
         id: butupdate
         x: 14
@@ -259,32 +226,20 @@ ApplicationWindow {
         onClicked: {
             tekDay.text = countToday()
             updateRecords()
-            var stDate = startdate.text
-            var enDate = enddate.text
+            var stDate = datePickerSt.date
+            var enDate = datePickerEnd.date
             tekPeriod.text = countBetween(stDate,enDate)
 
             //helloDialog.open()
         }
     }
 
-    Dialog {
-        id: helloDialog
-        //        modality: dialogModal.checked ? Qt.WindowModal : Qt.NonModal
-        //        title: customizeTitle.checked ? windowTitleField.text : "Hello"
-        onButtonClicked: console.log("clicked button " + clickedButton)
-        onAccepted: tekPeriod.text = "Accepted " +
-                    (clickedButton == StandardButton.Ok ? "(OK)" : (clickedButton == StandardButton.Retry ? "(Retry)" : "(Ignore)"))
-        onRejected: tekPeriod.text = "Rejected " +
-                    (clickedButton == StandardButton.Close ? "(Close)" : (clickedButton == StandardButton.Abort ? "(Abort)" : "(Cancel)"))
-        onHelp: tekPeriod.text = "Yelped for help!"
-        onYes: tekPeriod.text = (clickedButton == StandardButton.Yes ? "Yeessss!!" : "Yes, now and always")
-        onNo: tekPeriod.text = (clickedButton == StandardButton.No ? "Oh No." : "No, no, a thousand times no!")
-        onApply: tekPeriod.text = "Apply"
-        onReset: tekPeriod.text = "Reset"
-
-        Label {
-            text: "Hello world!"
-        }
+    DatePicker {
+        id: datePickerEnd
+        x: 49
+        y: 70
+        width: 110
+        height: 20
     }
 
     Rectangle {
@@ -329,5 +284,41 @@ ApplicationWindow {
 
         }
     }
+
+    DatePicker {
+        id: datePickerSt
+        x: 49
+        y: 43
+    }
+
+//    ListView {
+//        id: listView1
+//        x: 208
+//        y: 182
+//        width: 212
+//        height: 205
+//        model: recordsListModel
+
+//        delegate: Item {
+//            x: 5
+//            width: 80
+//            height: 40
+//            Row {
+//                id: row1
+//                Rectangle {
+//                    width: 40
+//                    height: 40
+//                }
+
+//                Text {
+//                    text: recordaRdate
+//                    font.bold: true
+//                    anchors.verticalCenter: parent.verticalCenter
+//                }
+//                spacing: 10
+//            }
+//        }
+//    }
+
 
 }

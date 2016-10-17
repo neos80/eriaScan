@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>WarningImg.qml</file>
         <file>Database.js</file>
+        <file>DatePicker.qml</file>
     </qresource>
 </RCC>
